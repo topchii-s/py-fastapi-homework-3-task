@@ -58,6 +58,12 @@ async def register_user(
     result_group = await db.execute(stmt_group)
     user_group = result_group.scalars().first()
 
+    if user_group is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred during user creation."
+        )
+
     try:
         new_user = UserModel.create(
             email=user_data.email,
@@ -207,7 +213,7 @@ async def reset_password(
 @router.post(
     "/login/",
     response_model=UserLoginResponseSchema,
-    status_code=status.HTTP_201_CREATED,
+    status_code=status.HTTP_200_OK,
 )
 async def login_user(
         login_data: UserLoginRequestSchema,
